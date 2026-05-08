@@ -602,6 +602,8 @@
     const characters = [...document.querySelectorAll('.char-pill input:checked')].map(i => i.parentElement.querySelector('label').textContent.trim()).join(', ') || 'None selected';
 
     return {
+      '_subject':          '✈ New Quote Request — Magic Holidays',
+      '_replyto':          document.getElementById('email').value,
       'First Name':        document.getElementById('firstName').value,
       'Last Name':         document.getElementById('lastName').value,
       'Email':             document.getElementById('email').value,
@@ -621,7 +623,6 @@
       'Budget Range':      document.getElementById('budget').value || 'Flexible',
       'How They Heard':    document.getElementById('source').value || 'Not specified',
       'Special Requests':  document.getElementById('notes').value || 'None',
-      '_subject':          '✈ New Quote Request — Magic Holidays',
     };
   }
 
@@ -635,7 +636,7 @@
     try {
       const res = await fetch('https://formspree.io/f/mnjwgqyd', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify(collectFormData())
       });
 
