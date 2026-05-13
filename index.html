@@ -433,6 +433,33 @@
       </div>
     </div>
 
+    <!-- Residency -->
+    <div class="form-section">
+      <div class="section-label">Residency</div>
+      <p style="font-size:13px; color:var(--gray-600); margin-bottom:14px;">Many vacation packages offer exclusive discounts based on where you live. Please select your country and state/province so we can find the best resident rates for you!</p>
+      <div class="form-grid">
+        <div class="field">
+          <label>Country of residence</label>
+          <select id="resCountry" onchange="updateStateList()">
+            <option value="">— Select country</option>
+            <option value="us">🇺🇸 United States</option>
+            <option value="ca">🇨🇦 Canada</option>
+            <option value="other">🌍 Other</option>
+          </select>
+        </div>
+        <div class="field" id="stateFieldWrap" style="display:none">
+          <label id="stateLabel">State / Province</label>
+          <select id="resState">
+            <option value="">— Select</option>
+          </select>
+        </div>
+        <div class="field" id="otherCountryWrap" style="display:none">
+          <label>Country name</label>
+          <input type="text" id="otherCountry" placeholder="e.g. United Kingdom">
+        </div>
+      </div>
+    </div>
+
     <!-- Hotel preference -->
     <div class="form-section">
       <div class="section-label">Hotel preference</div>
@@ -600,7 +627,29 @@
     document.getElementById('roomsWrap').style.display = total > 4 ? 'block' : 'none';
   }
 
-  // ── Flexible dates ────────────────────────────────────────
+  // ── Residency ─────────────────────────────────────────────
+  const US_STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming","Washington D.C."];
+  const CA_PROVINCES = ["Alberta","British Columbia","Manitoba","New Brunswick","Newfoundland & Labrador","Northwest Territories","Nova Scotia","Nunavut","Ontario","Prince Edward Island","Quebec","Saskatchewan","Yukon"];
+
+  function updateStateList() {
+    const country = document.getElementById('resCountry').value;
+    const stateWrap = document.getElementById('stateFieldWrap');
+    const otherWrap = document.getElementById('otherCountryWrap');
+    const stateLabel = document.getElementById('stateLabel');
+    const stateSelect = document.getElementById('resState');
+
+    stateWrap.style.display = (country === 'us' || country === 'ca') ? 'block' : 'none';
+    otherWrap.style.display = country === 'other' ? 'block' : 'none';
+
+    stateSelect.innerHTML = '<option value="">— Select</option>';
+    if (country === 'us') {
+      stateLabel.textContent = 'State';
+      US_STATES.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; stateSelect.appendChild(o); });
+    } else if (country === 'ca') {
+      stateLabel.textContent = 'Province / Territory';
+      CA_PROVINCES.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; stateSelect.appendChild(o); });
+    }
+  }
   function toggleFlexDates() {
     const flex    = document.getElementById('flexDates').checked;
     const ci      = document.getElementById('checkin');
@@ -740,8 +789,14 @@
       formData.append('Email', document.getElementById('email').value);
       formData.append('Phone', document.getElementById('phone').value || 'Not provided');
       formData.append('Destinations', destinations);
-      formData.append('Special Rate Eligibility', specialRates);
-      formData.append('Favourite Characters / Themes', characters);
+      const country = document.getElementById('resCountry');
+      const resCountryText = country.options[country.selectedIndex]?.text || 'Not provided';
+      const resState = document.getElementById('resState').value || '';
+      const otherCountry = document.getElementById('otherCountry').value || '';
+      const residency = resCountryText !== '— Select country' ? (resState ? `${resState}, ${resCountryText}` : (otherCountry || resCountryText)) : 'Not provided';
+
+      formData.append('Country / State of Residence', residency);
+      formData.append('Special Rate Eligibility', specialRates);      formData.append('Favourite Characters / Themes', characters);
       formData.append('Flexible Dates', flexible ? 'Yes' : 'No');
       formData.append('Check-in Date', flexible ? 'Flexible' : (document.getElementById('checkin').value || '—'));
       formData.append('Check-out Date', flexible ? 'Flexible' : (document.getElementById('checkout').value || '—'));
