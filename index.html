@@ -296,6 +296,14 @@
       <p class="char-note">Select all that apply — this helps us personalise your itinerary and recommendations!</p>
     </div>
 
+    <!-- Cruise loyalty numbers — shown when any cruise selected -->
+    <div class="form-section" id="loyaltySection" style="display:none;">
+      <div class="section-label">Cruise Loyalty Program</div>
+      <p style="font-size:13px; color:var(--gray-600); margin-bottom:16px;">If you are a member of a cruise loyalty program, please enter your number(s) below. This helps us apply any member benefits, onboard credits, or cabin upgrades to your booking!</p>
+      <div id="loyaltyFields" style="display:flex; flex-direction:column; gap:12px;"></div>
+      <p class="char-note" style="margin-top:12px;">✦ Leave blank if you don't have a loyalty number yet — we can help you sign up!</p>
+    </div>
+
     <!-- Special rate eligibility — shown when Royal Caribbean or Celebrity selected -->
     <div class="form-section char-section" id="specialRatesSection" style="display:none;">
       <div class="section-label">Special Rate Eligibility</div>
@@ -691,7 +699,42 @@
     const hasAllInc    = sel.includes('all_inclusive');
     const showAny      = hasDisney || hasUniversal || hasCruise || hasAllInc;
 
-    const hasRCOrCelebrity = sel.includes('royal_caribbean') || sel.includes('celebrity_cruises');
+    // Loyalty programs per cruise line
+    const loyaltyPrograms = {
+      disney_cruise:     { label: "Disney Cruise Line",     program: "Castaway Club",              field: "loyalty_disney"   },
+      royal_caribbean:   { label: "Royal Caribbean",        program: "Crown & Anchor Society #",   field: "loyalty_rc"       },
+      celebrity_cruises: { label: "Celebrity Cruises",      program: "Captain's Club #",            field: "loyalty_celebrity"},
+      msc:               { label: "MSC Cruises",            program: "MSC Voyagers Club #",         field: "loyalty_msc"      },
+      virgin_voyages:    { label: "Virgin Voyages",         program: "The Sailors' Club #",         field: "loyalty_virgin"   },
+    };
+
+    const cruiseDestinations = ['disney_cruise','royal_caribbean','celebrity_cruises','msc','virgin_voyages'];
+    const selectedCruises = sel.filter(s => cruiseDestinations.includes(s));
+    const loyaltySection = document.getElementById('loyaltySection');
+    const loyaltyFields  = document.getElementById('loyaltyFields');
+
+    if (selectedCruises.length > 0) {
+      loyaltySection.style.display = 'block';
+      loyaltyFields.innerHTML = '';
+      selectedCruises.forEach(cruise => {
+        const prog = loyaltyPrograms[cruise];
+        if (!prog) return;
+        const existing = document.getElementById(prog.field);
+        const val = existing ? existing.value : '';
+        const div = document.createElement('div');
+        div.className = 'form-grid';
+        div.style.gridTemplateColumns = '1fr 1fr';
+        div.innerHTML = `
+          <div class="field">
+            <label>${prog.label} — ${prog.program}</label>
+            <input type="text" id="${prog.field}" value="${val}" placeholder="Enter loyalty number (optional)">
+          </div>`;
+        loyaltyFields.appendChild(div);
+      });
+    } else {
+      loyaltySection.style.display = 'none';
+      loyaltyFields.innerHTML = '';
+    }
     document.getElementById('specialRatesSection').style.display = hasRCOrCelebrity ? 'block' : 'none';
     document.getElementById('charSection').classList.toggle('visible', showAny);
     document.getElementById('disneyChars').style.display       = hasDisney    ? 'block' : 'none';
@@ -794,6 +837,21 @@
       const resState = document.getElementById('resState').value || '';
       const otherCountry = document.getElementById('otherCountry').value || '';
       const residency = resCountryText !== '— Select country' ? (resState ? `${resState}, ${resCountryText}` : (otherCountry || resCountryText)) : 'Not provided';
+
+      // Loyalty numbers
+      const loyaltyMap = {
+        loyalty_disney:    'Disney Cruise Line — Castaway Club #',
+        loyalty_rc:        'Royal Caribbean — Crown & Anchor #',
+        loyalty_celebrity: 'Celebrity Cruises — Captain\'s Club #',
+        loyalty_msc:       'MSC Cruises — Voyagers Club #',
+        loyalty_virgin:    'Virgin Voyages — Sailors\' Club #',
+      };
+      let loyaltySummary = [];
+      Object.entries(loyaltyMap).forEach(([id, label]) => {
+        const el = document.getElementById(id);
+        if (el && el.value.trim()) loyaltySummary.push(`${label}: ${el.value.trim()}`);
+      });
+      formData.append('Cruise Loyalty Numbers', loyaltySummary.length > 0 ? loyaltySummary.join(' | ') : 'None provided');
 
       formData.append('Country / State of Residence', residency);
       formData.append('Special Rate Eligibility', specialRates);      formData.append('Favourite Characters / Themes', characters);
