@@ -219,6 +219,7 @@
         <div class="dest-pill"><input type="checkbox" id="d5" name="dest" value="disney_cruise" onchange="updateCharSection()"><label for="d5"><span class="pill-icon">🚢</span>Disney Cruise Line</label></div>
         <div class="dest-pill"><input type="checkbox" id="d6" name="dest" value="royal_caribbean" onchange="updateCharSection()"><label for="d6"><span class="pill-icon">⚓</span>Royal Caribbean</label></div>
         <div class="dest-pill"><input type="checkbox" id="d7" name="dest" value="msc" onchange="updateCharSection()"><label for="d7"><span class="pill-icon">🌊</span>MSC Cruises</label></div>
+        <div class="dest-pill"><input type="checkbox" id="d11" name="dest" value="celebrity_cruises" onchange="updateCharSection()"><label for="d11"><span class="pill-icon">⭐</span>Celebrity Cruises</label></div>
         <div class="dest-pill"><input type="checkbox" id="d8" name="dest" value="virgin_voyages" onchange="updateCharSection()"><label for="d8"><span class="pill-icon">💋</span>Virgin Voyages</label></div>
         <div class="dest-pill"><input type="checkbox" id="d9" name="dest" value="all_inclusive" onchange="updateCharSection()"><label for="d9"><span class="pill-icon">🌴</span>All Inclusive</label></div>
         <div class="dest-pill"><input type="checkbox" id="d10" name="dest" value="europe" onchange="updateCharSection()"><label for="d10"><span class="pill-icon">🗺</span>Europe</label></div>
@@ -618,7 +619,7 @@
     const sel = [...document.querySelectorAll('input[name="dest"]:checked')].map(i => i.value);
     const hasDisney    = sel.includes('disney_world') || sel.includes('disneyland') || sel.includes('disneyland_paris') || sel.includes('disney_cruise');
     const hasUniversal = sel.includes('universal_orlando') || sel.includes('universal_hollywood');
-    const hasCruise    = sel.includes('royal_caribbean') || sel.includes('msc') || sel.includes('virgin_voyages');
+    const hasCruise    = sel.includes('royal_caribbean') || sel.includes('msc') || sel.includes('virgin_voyages') || sel.includes('celebrity_cruises');
     const hasAllInc    = sel.includes('all_inclusive');
     const showAny      = hasDisney || hasUniversal || hasCruise || hasAllInc;
 
